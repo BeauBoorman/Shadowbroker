@@ -245,6 +245,7 @@ ALLOWED_ENV_KEYS = {
 # Not an API key, but persisted in operator_api_keys.env so it survives
 # container recreation: pinned layers guard (see routers/data.py).
 ALLOWED_ENV_KEYS.add("SB_PIN_LAYERS")
+ALLOWED_ENV_KEYS.add("ADMIN_KEY")  # auth.py falls back to os.environ when Settings misses it
 
 
 def _parse_env_file(path: Path) -> dict[str, str]:
