@@ -20,11 +20,12 @@ export function resolveAgentShellWsUrl(cwd?: string, wsToken?: string): string {
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const host = window.location.hostname || '127.0.0.1';
   const fePort = window.location.port;
-  const port =
-    process.env.NEXT_PUBLIC_BACKEND_PORT ||
-    (fePort && fePort !== '3000'
-      ? String(Number(fePort) - 3000 + 8000)
-      : '8000');
+  // The dashboard is served through the frontend container's proxy, so the
+  // browser must always dial the backend's own published port (8000), never a
+  // port derived from the frontend's mapped port (8302 - 3000 + 8000 = 13302
+  // existed nowhere — the operator shell silently failed to connect).
+  const port = process.env.NEXT_PUBLIC_BACKEND_PORT || '8000';
+  void fePort;
   const params = new URLSearchParams();
   const trimmed = String(cwd || '').trim();
   if (trimmed) params.set('cwd', trimmed);
