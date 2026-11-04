@@ -500,7 +500,7 @@ active_layers: dict[str, bool] = {
     "malware_c2": False,
     "submarine_cables": False,
     "scm_suppliers": False,
-    "cyber_threats": False,
+    "cyber_threats": True,
     "telegram_osint": True,
     "gt_risk": False,
 }

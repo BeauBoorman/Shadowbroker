@@ -30,6 +30,12 @@ def fetch_cyber_threats() -> dict[str, Any]:
             for v in vulns:
                 try:
                     added = datetime.fromisoformat(v.get("dateAdded", "").replace("Z", "+00:00"))
+                    # CISA KEV dateAdded is date-only ("2026-11-03") which parses
+                    # naive; mixing naive-aware subtraction raises TypeError and
+                    # the bare except silently skipped EVERY vuln (layer always
+                    # showed 0 threats from a healthy catalog). Force UTC.
+                    if added.tzinfo is None:
+                        added = added.replace(tzinfo=timezone.utc)
                     days = (now - added).total_seconds() / 86400
                 except Exception:
                     continue
