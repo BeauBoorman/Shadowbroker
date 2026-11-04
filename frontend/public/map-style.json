@@ -1,25 +1,73 @@
 {
     "version": 8,
-    "glyphs": "/fonts/{fontstack}/{range}.pbf",
+    "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
     "sources": {
-        "carto-dark": {
-            "type": "raster",
-            "tiles": [
-                "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-                "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-                "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-                "https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"
-            ],
-            "tileSize": 256
+        "openfreemap-dark": {
+            "type": "vector",
+            "url": "https://tiles.openfreemap.org/planet"
         }
     },
     "layers": [
         {
-            "id": "carto-dark-layer",
-            "type": "raster",
-            "source": "carto-dark",
-            "minzoom": 0,
-            "maxzoom": 22
+            "id": "ofm-background",
+            "type": "background",
+            "paint": { "background-color": "#0e0e0e" }
+        },
+        {
+            "id": "ofm-water",
+            "type": "fill",
+            "source": "openfreemap-dark",
+            "source-layer": "water",
+            "paint": { "fill-color": "#16202b" }
+        },
+        {
+            "id": "ofm-land",
+            "type": "fill",
+            "source": "openfreemap-dark",
+            "source-layer": "landcover",
+            "paint": { "fill-color": "#1a1a1a" }
+        },
+        {
+            "id": "ofm-boundaries",
+            "type": "line",
+            "source": "openfreemap-dark",
+            "source-layer": "boundary",
+            "paint": { "line-color": "#3a3a3a", "line-width": 0.6 }
+        },
+        {
+            "id": "ofm-roads-minor",
+            "type": "line",
+            "source": "openfreemap-dark",
+            "source-layer": "transportation",
+            "filter": ["<", "class", "motorway"],
+            "paint": { "line-color": "#262626", "line-width": 0.5 }
+        },
+        {
+            "id": "ofm-roads-major",
+            "type": "line",
+            "source": "openfreemap-dark",
+            "source-layer": "transportation",
+            "filter": [">=", "class", "motorway"],
+            "paint": { "line-color": "#3d3d3d", "line-width": 1.0 }
+        },
+        {
+            "id": "ofm-buildings",
+            "type": "fill",
+            "source": "openfreemap-dark",
+            "source-layer": "building",
+            "paint": { "fill-color": "#1f1f1f" }
+        },
+        {
+            "id": "ofm-places-label",
+            "type": "symbol",
+            "source": "openfreemap-dark",
+            "source-layer": "place",
+            "layout": {
+                "text-field": ["get", "name"],
+                "text-font": ["Noto Sans Regular"],
+                "text-size": 12
+            },
+            "paint": { "text-color": "#b8b8b8" }
         }
     ]
 }
