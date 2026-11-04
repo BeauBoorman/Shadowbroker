@@ -41,6 +41,12 @@ export interface AisUpstreamHealth {
   aisEnabled: boolean;
   /** True when ``AISHUB_USERNAME`` is set so the REST backup can run. */
   aishubConfigured: boolean;
+  /**
+   * True when at least one ship layer is enabled. When false, the AIS stream
+   * is intentionally stopped by the operator — silence is expected, not an
+   * upstream outage. The banner must not suggest fixes in that state.
+   */
+  shipLayersActive: boolean;
 }
 
 const POLL_INTERVAL_MS = 30_000;
@@ -74,6 +80,10 @@ export function useAisUpstreamHealth(): AisUpstreamHealth | null {
           proxySpawnCount: spawns,
           aisEnabled: spawns > 0,
           aishubConfigured: Boolean(proxy.aishub_configured),
+          // Backend defaults to true when layer state is unavailable, so we
+          // keep the old (outage) behavior unless it explicitly reports the
+          // stream as intentionally stopped.
+          shipLayersActive: proxy.ship_layers_active !== false,
         });
       } catch {
         // Backend unreachable — separate problem. Banner not relevant.

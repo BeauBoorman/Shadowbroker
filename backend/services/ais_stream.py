@@ -401,6 +401,24 @@ def ais_proxy_status() -> dict:
         status["last_msg_age_seconds"] = None
         status["connected"] = False
     status["proxy_spawn_count"] = spawns
+    # Layer state (issue: banner blamed AISStream for locally-disabled layers).
+    # When every ship layer is off, the stream is intentionally stopped —
+    # ``connected: false`` then means "operator turned it off", not "upstream
+    # outage". Surface that so the frontend banner can say the right thing.
+    try:
+        from services.fetchers._store import is_any_active
+
+        status["ship_layers_active"] = bool(
+            is_any_active(
+                "ships_military",
+                "ships_cargo",
+                "ships_civilian",
+                "ships_passenger",
+                "ships_tracked_yachts",
+            )
+        )
+    except Exception:
+        status["ship_layers_active"] = True  # unknown — assume active, old behavior
     return status
 
 import os
@@ -486,6 +504,11 @@ def _load_cache():
 
 def prune_stale_vessels():
     """Remove vessels not updated in the last 15 minutes. Safe to call from a scheduler."""
+    # While the stream is stopped, keep the last-known vessel picture instead of
+    # pruning it to nothing (stale data beats no data; also protects the disk
+    # cache from being overwritten with an empty dict on the next save).
+    if not _ws_running:
+        return
     now = time.time()
     stale_cutoff = now - 900
     with _vessels_lock:
